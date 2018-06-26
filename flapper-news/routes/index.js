@@ -42,18 +42,18 @@ router.get('/posts', function(req, res, next) {
   });
 });
 
-router.post('/posts', function(req, res, next) {
-    var post = new Post(req.body);
-
-    post.save(function(err, post) {
+router.get('/posts/:post', function (req, res) {
+    req.post.populate('comments', function(err, post) {
         if (err){ return next(err); }
 
         res.json(post);
     });
 });
 
-router.get('/posts:post', function (req, res) {
-    req.post.populate('comments', function(err, post) {
+router.post('/posts', function(req, res, next) {
+    var post = new Post(req.body);
+
+    post.save(function(err, post) {
         if (err){ return next(err); }
 
         res.json(post);
@@ -68,7 +68,7 @@ router.put('/posts/:post/upvote', function (req, res, next) {
     });
 });
 
-router.put('/posts/:post/comments', function (req, res, next) {
+router.post('/posts/:post/comments', function (req, res, next) {
     var comment = new Comment(req.body);
     comment.post = req.post;
 
@@ -81,6 +81,14 @@ router.put('/posts/:post/comments', function (req, res, next) {
 
             res.json(comment);
         });
+    });
+});
+
+router.put('/posts/:post/comments/:comment/upvote', function (req, res, next) {
+    req.comment.upvote(function(err, comment) {
+        if (err){ return next(err); }
+
+        res.json(comment);
     });
 });
 
