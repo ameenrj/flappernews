@@ -220,6 +220,10 @@ var app = angular.module('flapperNews', ['ui.router'])
             $scope.decrementUpvotes = function(post) {
                 posts.downvote(post);
             };
+
+            $scope.numberOfComments = function(post) {
+                return post.comments.length;
+            };
         }
     ])
     .controller('PostsCtrl', [
