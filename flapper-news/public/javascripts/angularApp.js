@@ -23,6 +23,26 @@ var app = angular.module('flapperNews', ['ui.router'])
                             return posts.get($stateParams.id);
                         }]
                     }
+                })
+                .state('register', {
+                    url: '/register',
+                    templateUrl: '/register.html',
+                    controller: 'AuthCtrl',
+                    onEnter: ['$state', 'auth', function($state, auth){
+                        if(auth.isLoggedIn()){
+                            $state.go('home');
+                        }
+                    }]
+                })
+                .state('login', {
+                    url: '/login',
+                    templateUrl: '/login.html',
+                    controller: 'AuthCtrl',
+                    onEnter: ['$state', 'auth', function($state, auth){
+                        if(auth.isLoggedIn()){
+                            $state.go('home');
+                        }
+                    }]
                 });
 
             $urlRouterProvider.otherwise('home');
@@ -65,7 +85,7 @@ var app = angular.module('flapperNews', ['ui.router'])
           });
         };
 
-        auth.login = function(user) {
+        auth.logIn = function(user) {
             return $http.post('/login', user).success(function(data) {
                 auth.saveToken(data.token);
             });
@@ -77,7 +97,7 @@ var app = angular.module('flapperNews', ['ui.router'])
 
         return auth;
     }])
-    .factory('posts', ['$http', function($http) {
+    .factory('posts', ['$http', 'auth', function($http, auth) {
         var o = {
             posts: []
         };
@@ -95,35 +115,77 @@ var app = angular.module('flapperNews', ['ui.router'])
         };
 
         o.create = function(post) {
-            return $http.post('/posts', post).success(function(post) {
+            return $http.post('/posts', post, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).success(function(post) {
                 o.posts.push(post);
             })
         };
 
         o.upvote = function(post) {
-            return $http.put('/posts/' + post._id + '/upvote').success(function(data) {
+            return $http.put('/posts/' + post._id + '/upvote', null, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).success(function(data) {
                 post.upvotes += 1;
             })
         };
 
         o.addComment = function(id, comment) {
-            return $http.post('/posts/' + id + '/comments', comment);
+            return $http.post('/posts/' + id + '/comments', comment, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            });
         };
 
         o.upvoteComment = function(post, comment) {
-            return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote')
-                .success(function() {
+            return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote', null, {
+                headers: {Authorization: 'Bearer ' + auth.getToken()}
+            }).success(function() {
                     comment.upvotes += 1;
-                })
+            })
         };
 
         return o;
     }])
+    .controller('AuthCtrl', [
+        '$scope',
+        '$state',
+        'auth',
+        function($scope, $state, auth) {
+            $scope.user = {};
+
+            $scope.register = function() {
+                auth.register($scope.user).error(function(error) {
+                    $scope.error = error;
+                }).then(function() {
+                    $state.go('home');
+                });
+            };
+
+            $scope.logIn = function() {
+                auth.logIn($scope.user).error(function(error) {
+                    $scope.error = error;
+                }).then(function() {
+                    $state.go('home');
+                });
+            };
+        }
+    ])
+    .controller('NavCtrl', [
+        '$scope',
+        'auth',
+        function($scope, auth){
+            $scope.isLoggedIn = auth.isLoggedIn;
+            $scope.currentUser = auth.currentUser;
+            $scope.logOut = auth.logOut;
+        }
+    ])
     .controller('MainCtrl', [
         '$scope',
         'posts',
-        function($scope, posts) {
+        'auth',
+        function($scope, posts, auth) {
             $scope.posts = posts.posts;
+            $scope.isLoggedIn = auth.isLoggedIn;
 
             $scope.addPost = function() {
                 if (!$scope.title || $scope.title === '') { return; }
@@ -144,8 +206,10 @@ var app = angular.module('flapperNews', ['ui.router'])
         '$scope',
         'posts',
         'post',
-        function($scope, posts, post) {
+        'auth',
+        function($scope, posts, post, auth) {
             $scope.post = post;
+            $scope.isLoggedIn = auth.isLoggedIn;
 
             $scope.addComment = function(){
                 if($scope.body === '') { return; }

@@ -14,12 +14,12 @@ UserSchema.methods.setPassword = function(password) {
 };
 
 UserSchema.methods.validPassword = function(password) {
-    this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
+    var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
 
     return this.hash === hash;
 };
 
-UserSchema.methods.requireJWT = function() {
+UserSchema.methods.generateJWT = function() {
     // set expiration to 60 days
     var today = new Date();
     var exp = new Date(today);
