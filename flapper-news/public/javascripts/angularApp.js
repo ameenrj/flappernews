@@ -238,8 +238,7 @@ var app = angular.module('flapperNews', ['ui.router'])
             $scope.addComment = function(){
                 if($scope.body === '') { return; }
                 posts.addComment(post._id, {
-                    body: $scope.body,
-                    author: 'user'
+                    body: $scope.body
                 }).success(function(comment) {
                     $scope.post.comments.push(comment);
                 });
