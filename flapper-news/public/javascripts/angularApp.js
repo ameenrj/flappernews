@@ -202,6 +202,7 @@ var app = angular.module('flapperNews', ['ui.router'])
         function($scope, posts, auth) {
             $scope.posts = posts.posts;
             $scope.isLoggedIn = auth.isLoggedIn;
+            $scope.showAddPost = false;
 
             $scope.addPost = function() {
                 if (!$scope.title || $scope.title === '') { return; }
@@ -234,6 +235,7 @@ var app = angular.module('flapperNews', ['ui.router'])
         function($scope, posts, post, auth) {
             $scope.post = post;
             $scope.isLoggedIn = auth.isLoggedIn;
+            $scope.showAddComment = false;
 
             $scope.addComment = function(){
                 if($scope.body === '') { return; }

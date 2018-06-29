@@ -106,7 +106,11 @@
             </span>
         </div>
 
-        <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
+        <button ng-hide="showAddPost" class="btn btn-primary" ng-click="showAddPost = true" style="margin-top:30px;">
+            Create Post
+        </button>
+
+        <form ng-submit="addPost()" ng-show="showAddPost && isLoggedIn()" style="margin-top:30px;">
             <h3>Add a new post</h3>
 
             <div class="form-group">
@@ -150,7 +154,11 @@
             </span>
         </div>
 
-        <form ng-submit="addComment()" ng-show="isLoggedIn()" style="margin-top:30px;">
+        <button ng-hide="showAddComment" class="btn btn-primary" ng-click="showAddComment = true" style="margin-top:30px;">
+            Post comment
+        </button>
+
+        <form ng-submit="addComment()" ng-show="showAddComment && isLoggedIn()" style="margin-top:30px;">
             <h3>Add a new comment</h3>
 
             <div class="form-group">
